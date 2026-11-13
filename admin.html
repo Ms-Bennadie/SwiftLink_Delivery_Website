@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftLink Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Dashboard Styles -->
+    <style>
+        body { background-color: #f0f2f5; margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        /* Login Screen */
+        #loginScreen { display: flex; justify-content: center; align-items: center; height: 100vh; background: var(--secondary-color); }
+        .login-box { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 350px; text-align: center; }
+        
+        /* Dashboard Layout */
+        #dashboardScreen { display: none; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* Sidebar */
+        .sidebar { width: 250px; background: var(--secondary-color); color: white; display: flex; flex-direction: column; padding: 20px 0; }
+        .sidebar h2 { text-align: center; color: var(--primary-color); margin-bottom: 30px; }
+        .sidebar a { color: #ccc; text-decoration: none; padding: 15px 20px; display: block; transition: 0.3s; }
+        .sidebar a:hover, .sidebar a.active { background: rgba(255,255,255,0.1); color: white; border-left: 4px solid var(--primary-color); }
+        
+        /* Main Content */
+        .main-content { flex: 1; padding: 30px; overflow-y: auto; }
+        
+        /* Top Header */
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .top-header h1 { margin: 0; color: #333; }
+        .top-header button { background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        
+        /* Stat Cards */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 5px solid var(--primary-color); display: flex; justify-content: space-between; align-items: center; }
+        .stat-card h3 { margin: 0; color: #777; font-size: 0.9rem; text-transform: uppercase; }
+        .stat-card p { margin: 5px 0 0; font-size: 2rem; font-weight: bold; color: #333; }
+        .stat-card i { font-size: 2.5rem; color: rgba(255, 107, 0, 0.2); }
+        
+        /* Table Styles */
+        .table-container { background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); padding: 20px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 15px; background: #f8f9fa; color: #555; border-bottom: 2px solid #eee; }
+        td { padding: 15px; border-bottom: 1px solid #eee; color: #333; }
+        .status-badge { padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; }
+        .status-received { background: #ffeaa7; color: #d35400; }
+        .status-transit { background: #74b9ff; color: #0984e3; }
+        .status-delivered { background: #55efc4; color: #00b894; }
+        
+        select { padding: 8px; border-radius: 5px; border: 1px solid #ccc; outline: none; }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="loginScreen">
+        <div class="login-box">
+            <h2 style="color: var(--secondary-color); margin-bottom: 20px;">SwiftLink Admin</h2>
+            <input type="password" id="adminPassword" placeholder="Enter Admin Password" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px;">
+            <button class="btn btn-primary" style="width: 100%; padding: 12px;" onclick="login()">Login</button>
+            <p id="loginError" style="color: red; display: none; margin-top: 10px;">Incorrect Password</p>
+        </div>
+    </div>
+    <!-- DASHBOARD SCREEN -->
+    <div id="dashboardScreen">
+        
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h2>SwiftLink</h2>
+            <a href="#" class="active"><i class="fas fa-box"></i> Orders</a>
+            <a href="#"><i class="fas fa-motorcycle"></i> Riders (Soon)</a>
+            <a href="#"><i class="fas fa-store"></i> Vendors (Soon)</a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-header">
+                <h1>Live Orders</h1>
+                <div>
+                    <button onclick="loadOrders()" style="background: var(--primary-color); margin-right: 10px;"><i class="fas fa-sync"></i> Refresh</button>
+                    <button onclick="logout()">Logout</button>
+                </div>
+            </div>
+
+            <!-- Stat Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div>
+                        <h3>Total Orders</h3>
+                        <p id="totalOrders">0</p>
+                    </div>
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="stat-card" style="border-left-color: #0984e3;">
+                    <div>
+                        <h3>In Transit</h3>
+                        <p id="inTransitOrders">0</p>
+                    </div>
+                    <i class="fas fa-truck" style="color: rgba(9, 132, 227, 0.2);"></i>
+                </div>
+                <div class="stat-card" style="border-left-color: #00b894;">
+                    <div>
+                        <h3>Delivered</h3>
+                        <p id="deliveredOrders">0</p>
+                    </div>
+                    <i class="fas fa-check-circle" style="color: rgba(0, 184, 148, 0.2);"></i>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tracking #</th>
+                            <th>Customer Phone</th>
+                            <th>Dropoff</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                        <!-- JS injects here -->
+                    </tbody>
+                </table>
+                <p id="noOrdersMsg" style="text-align: center; padding: 20px; color: #777; display: none;">No orders yet. Book a delivery on the main site!</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>

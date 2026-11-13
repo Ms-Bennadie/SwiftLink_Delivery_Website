@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftLink Delivery Service</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">
+            <h2>Swift<span>Link</span></h2>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#book">Book Delivery</a></li>
+            <li><a href="#track">Track Parcel</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#rates">Rates</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        <div class="hamburger">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <!-- 1. Homepage / Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>Fast, Safe & Reliable Delivery</h1>
+            <p>Your trusted partner for parcel, food, and business deliveries in Accra and beyond.</p>
+            <div class="hero-buttons">
+                <a href="#book" class="btn btn-primary">Request a Delivery</a>
+                <a href="#track" class="btn btn-secondary">Track Your Parcel</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. Book a Delivery -->
+    <section id="book" class="section">
+        <h2 class="section-title">Book a Delivery</h2>
+        <div class="form-container">
+            <form id="deliveryForm">
+                <div class="input-group">
+                    <label for="pickup">Pickup Address</label>
+                    <input type="text" id="pickup" placeholder="Enter pickup location" required>
+                </div>
+                <div class="input-group">
+                    <label for="dropoff">Recipient's Address</label>
+                    <input type="text" id="dropoff" placeholder="Enter drop-off location" required>
+                </div>
+                <div class="input-group">
+                    <label for="phone">Recipient's Phone Number</label>
+                    <input type="tel" id="phone" placeholder="e.g., 0537562248" required>
+                </div>
+                <div class="input-group">
+                    <label for="parcel">Describe the Parcel</label>
+                    <textarea id="parcel" rows="3" placeholder="e.g., Small box, fragile..." required></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="deliveryType">Delivery Type</label>
+                    <select id="deliveryType">
+                        <option value="standard">Standard Delivery</option>
+                        <option value="same-day">Same-Day Delivery</option>
+                        <option value="bulk">Bulk/Business</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary full-width">Submit Request</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- 3. Track Your Parcel -->
+    <section id="track" class="section bg-light">
+        <h2 class="section-title">Track Your Parcel</h2>
+        <div class="track-container">
+            <input type="text" id="trackingNumber" placeholder="Enter your tracking number">
+            <button class="btn btn-primary" onclick="trackParcel()">Track</button>
+        </div>
+        <div id="trackingResult" class="tracking-result hidden">
+            <!-- JS will inject status here -->
+        </div>
+    </section>
+
+    <!-- 4. Our Services -->
+    <section id="services" class="section">
+        <h2 class="section-title">Our Services</h2>
+        <div class="grid-container">
+            <div class="service-card"><i class="fas fa-box"></i><h3>Parcel Delivery</h3></div>
+            <div class="service-card"><i class="fas fa-utensils"></i><h3>Food Delivery</h3></div>
+            <div class="service-card"><i class="fas fa-shopping-basket"></i><h3>Grocery Delivery</h3></div>
+            <div class="service-card"><i class="fas fa-pills"></i><h3>Medicine Delivery</h3></div>
+            <div class="service-card"><i class="fas fa-file-alt"></i><h3>Document Delivery</h3></div>
+            <div class="service-card"><i class="fas fa-truck-moving"></i><h3>Business & Bulk</h3></div>
+        </div>
+    </section>
+
+    <!-- 5 & 6. Vendor & Admin (Placeholders) -->
+    <section class="section bg-dark text-white text-center">
+        <h2>Partner With Us</h2>
+        <p>Are you a vendor? Register your store today.</p>
+        <a href="#" class="btn btn-secondary mt-2">Become a Vendor</a>
+        <br><br>
+        <a href="#" class="btn-link text-white">Admin Dashboard Login</a>
+    </section>
+
+    <!-- 7. About SwiftLink -->
+    <section id="about" class="section">
+        <h2 class="section-title">About SwiftLink</h2>
+        <div class="about-content">
+            <p>SwiftLink Delivering Convenience. Connecting People. Moving Businesses Forward.
+
+SwiftLink Delivery Service is a Ghanaian-owned delivery and logistics company committed to providing fast, reliable and secure delivery solutions to individuals, businesses and organisations across Ghana.
+
+We understand that time is valuable and that getting items from one location to another should never be stressful. That is why we have built our services around convenience, speed, safety and customer satisfaction.
+
+Whether you need to send an important document, deliver a parcel, transport food, purchase and deliver groceries, or send essential items to someone, SwiftLink is ready to get it done.
+
+With our operational base in Dawhenya, we are working towards making delivery services more accessible and convenient, connecting customers and businesses across every region of Ghana.</p>
+        </div>
+    </section>
+
+    <!-- 8. Delivery Rates -->
+    <section id="rates" class="section bg-light">
+        <h2 class="section-title">Delivery Rates</h2>
+        <table class="rates-table">
+            <tr>
+                <th>Delivery Zone</th>
+                <th>Estimated Cost</th>
+            </tr>
+            <tr><td>Accra Delivery</td><td>GH₵ 15 - 50</td></tr>
+            <tr><td>Extended Accra</td><td>GH₵ 50 - 80</td></tr>
+            <tr><td>Regional Delivery</td><td>Contact Us</td></tr>
+            <tr><td>Bulk/Business Packages</td><td>Discounted Rates</td></tr>
+        </table>
+        <p class="text-center mt-2"><em>Costs are determined before confirming an order.</em></p>
+    </section>
+
+    <!-- 9, 10, 11, 12. Contact, Rider/Vendor Signup, Payments -->
+    <section id="contact" class="section">
+        <h2 class="section-title">Contact Us</h2>
+        <div class="contact-grid">
+            <div class="contact-info">
+                <p><i class="fas fa-phone"></i> <strong>Phone:</strong> 0537562248</p>
+                <p><i class="fas fa-envelope"></i> <strong>Email:</strong> Swiftlink700@gmail.com</p>
+                <p><i class="fab fa-whatsapp"></i> <strong>WhatsApp:</strong> <a href="https://wa.me/233537562248">Chat with us</a></p>
+                <p><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> Dawhenya</p>
+                <div class="socials">
+                    <i class="fab fa-facebook"></i>
+                    <i class="fab fa-instagram"></i>
+                    <i class="fab fa-twitter"></i>
+                </div>
+            </div>
+            <div class="contact-form">
+                <form>
+                    <input type="text" placeholder="Your Name" required>
+                    <input type="email" placeholder="Your Email" required>
+                    <textarea rows="4" placeholder="Your Message" required></textarea>
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </form>
+            </div>
+        </div>
+        <div class="additional-links text-center mt-2">
+            <a href="#" class="btn-link">Become a Rider</a> | 
+            <a href="#" class="btn-link">Become a Vendor</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <h2>Swift<span>Link</span></h2>
+                <p>Fast. Safe. Reliable.</p>
+            </div>
+            <div class="payment-options">
+                <h3>Payment Options</h3>
+                <p><i class="fas fa-mobile-alt"></i> Mobile Money</p>
+                <p><i class="fas fa-credit-card"></i> Card</p>
+                <p><i class="fas fa-money-bill-wave"></i> Cash on Delivery</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 SwiftLink. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
