@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const { MongoClient } = require('mongodb');
+require('dotenv').config(); // Loads the .env file
 
 const app = express();
 const PORT = 3000;
@@ -7,15 +9,32 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
-// Temporary database
-const database = {}; 
+// --- DATABASE CONNECTION ---
+const uri = process.env.MONGODB_URI;
+const client = new MongoClient(uri);
+
+let ordersCollection; // This will hold our database collection
+
+async function connectDB() {
+    try {
+        await client.connect();
+        console.log("✅ Connected to MongoDB Atlas!");
+        
+        const db = client.db('SwiftLink'); // Database name
+        ordersCollection = db.collection('orders'); // Collection name
+    } catch (error) {
+        console.error("❌ Database connection failed:", error);
+    }
+}
+connectDB();
 
 // --- CUSTOMER ENDPOINTS ---
-app.post('/book-delivery', (req, res) => {
+
+app.post('/book-delivery', async (req, res) => {
     const { pickup, dropoff, phone, parcel, deliveryType } = req.body;
     const trackingNumber = 'SW-' + Math.floor(1000 + Math.random() * 9000);
 
-    database[trackingNumber] = {
+    const newOrder = {
         trackingNumber: trackingNumber,
         status: "Order Received",
         location: "Awaiting Rider Assignment",
@@ -23,17 +42,25 @@ app.post('/book-delivery', (req, res) => {
         dropoff: dropoff,
         phone: phone,
         parcel: parcel,
-        type: deliveryType
+        type: deliveryType,
+        createdAt: new Date()
     };
+
+    // Save to REAL Database
+    await ordersCollection.insertOne(newOrder);
 
     console.log(`✅ SAVED TO DATABASE: ${trackingNumber}`);
     res.json({ success: true, trackingNumber: trackingNumber });
 });
 
-app.get('/track/:trackingNumber', (req, res) => {
+app.get('/track/:trackingNumber', async (req, res) => {
     const trackingNum = req.params.trackingNumber;
-    if (database[trackingNum]) {
-        res.json({ success: true, order: database[trackingNum] });
+    
+    // Find in REAL Database
+    const order = await ordersCollection.findOne({ trackingNumber: trackingNum });
+
+    if (order) {
+        res.json({ success: true, order: order });
     } else {
         res.json({ success: false, message: "Not found" });
     }
@@ -41,23 +68,26 @@ app.get('/track/:trackingNumber', (req, res) => {
 
 // --- ADMIN ENDPOINTS ---
 
-// 1. Get all orders for the dashboard
-app.get('/admin/orders', (req, res) => {
-    const ordersArray = Object.values(database);
-    res.json({ success: true, orders: ordersArray });
+app.get('/admin/orders', async (req, res) => {
+    // Get all orders from database, newest first
+    const orders = await ordersCollection.find().sort({ createdAt: -1 }).toArray();
+    res.json({ success: true, orders: orders });
 });
 
-// 2. Update an order's status
-app.post('/admin/update-status', (req, res) => {
+app.post('/admin/update-status', async (req, res) => {
     const { trackingNumber, newStatus, newLocation } = req.body;
     
-    if (database[trackingNumber]) {
-        database[trackingNumber].status = newStatus;
-        database[trackingNumber].location = newLocation;
+    // Update in REAL Database
+    const result = await ordersCollection.updateOne(
+        { trackingNumber: trackingNumber },
+        { $set: { status: newStatus, location: newLocation } }
+    );
+
+    if (result.modifiedCount > 0) {
         console.log(`🔄 UPDATED: ${trackingNumber} is now ${newStatus}`);
         res.json({ success: true });
     } else {
-        res.json({ success: false, message: "Order not found" });
+        res.json({ success: false, message: "Order not found or no changes made" });
     }
 });
 
