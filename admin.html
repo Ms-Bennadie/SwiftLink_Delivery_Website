@@ -69,9 +69,9 @@
         <!-- Sidebar -->
         <div class="sidebar">
             <h2>SwiftLink</h2>
-            <a href="#" class="active"><i class="fas fa-box"></i> Orders</a>
-            <a href="#" onclick="loadMessages()"><i class="fas fa-envelope"></i> Messages</a>
-            <a href="#"><i class="fas fa-motorcycle"></i> Riders (Soon)</a>
+            <a href="#" class="active" onclick="showTab('orders')"><i class="fas fa-box"></i> Orders</a>
+    <a href="#" onclick="showTab('messages')"><i class="fas fa-envelope"></i> Messages</a>
+    <a href="#"><i class="fas fa-motorcycle"></i> Riders (Soon)</a>
         </div>
 
         <!-- Main Content -->
@@ -110,7 +110,7 @@
             </div>
 
             <!-- Table -->
-            <div class="table-container">
+            <div id="ordersContainer" class="table-container">
                 <table>
                     <thead>
                         <tr>
@@ -127,6 +127,25 @@
                 </table>
                 <p id="noOrdersMsg" style="text-align: center; padding: 20px; color: #777; display: none;">No orders yet. Book a delivery on the main site!</p>
             </div>
+
+            <!-- MESSAGES TABLE (Hidden by default) -->
+<div id="messagesContainer" class="table-container" style="display: none; margin-top: 20px;">
+    <h2 style="margin-bottom: 15px;">Customer Inbox</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Message</th>
+            </tr>
+        </thead>
+        <tbody id="messagesTableBody">
+            <!-- JS injects messages here -->
+        </tbody>
+    </table>
+    <p id="noMessagesMsg" style="text-align: center; padding: 20px; color: #777; display: none;">No messages yet.</p>
+</div>
         </div>
     </div>
 

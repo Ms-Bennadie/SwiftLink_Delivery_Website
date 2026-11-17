@@ -100,23 +100,52 @@ async function updateStatus(trackingNumber, newStatus) {
     }
 }
 
+// --- SWITCH TABS ---
+function showTab(tabName) {
+    const ordersDiv = document.getElementById('ordersContainer');
+    const messagesDiv = document.getElementById('messagesContainer');
+
+    if (tabName === 'orders') {
+        ordersDiv.style.display = 'block';
+        messagesDiv.style.display = 'none';
+        loadOrders(); // Refresh orders
+    } else if (tabName === 'messages') {
+        ordersDiv.style.display = 'none';
+        messagesDiv.style.display = 'block';
+        loadMessages(); // Load messages
+    }
+}
+
+// --- LOAD MESSAGES (Replaces the old alert version) ---
 async function loadMessages() {
     try {
         const response = await fetch('http://localhost:3000/admin/messages');
         const result = await response.json();
 
+        const tableBody = document.getElementById('messagesTableBody');
+        const noMsg = document.getElementById('noMessagesMsg');
+        tableBody.innerHTML = ''; 
+
         if (result.success && result.messages.length > 0) {
-            // For now, let's just show them in an alert or console
-            let msgText = "--- CUSTOMER MESSAGES ---\n\n";
+            noMsg.style.display = 'none';
+            
             result.messages.forEach(msg => {
-                msgText += `From: ${msg.name} (${msg.email})\nMessage: ${msg.message}\n\n`;
+                // Format the date
+                const date = new Date(msg.date).toLocaleDateString();
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${date}</td>
+                    <td><strong>${msg.name}</strong></td>
+                    <td><a href="mailto:${msg.email}">${msg.email}</a></td>
+                    <td>${msg.message}</td>
+                `;
+                tableBody.appendChild(row);
             });
-            alert(msgText);
         } else {
-            alert("No messages yet.");
+            noMsg.style.display = 'block';
         }
     } catch (error) {
         console.error("Error loading messages:", error);
-        alert("Failed to load messages.");
     }
 }
