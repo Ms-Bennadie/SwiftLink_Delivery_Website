@@ -128,6 +128,45 @@ app.post('/verify-payment', async (req, res) => {
     }
 });
 
+// --- CONTACT US ENDPOINT ---
+app.post('/contact', async (req, res) => {
+    const { name, email, message } = req.body;
+
+    try {
+        // Create a new collection for messages
+        const db = client.db('SwiftLink');
+        const messagesCollection = db.collection('messages');
+
+        const newMessage = {
+            name: name,
+            email: email,
+            message: message,
+            date: new Date(),
+            status: "Unread"
+        };
+
+        await messagesCollection.insertOne(newMessage);
+        console.log(`📩 NEW MESSAGE FROM: ${name}`);
+        
+        res.json({ success: true, message: "Message sent successfully!" });
+    } catch (error) {
+        console.error("Contact Error:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+});
+
+// --- GET ALL MESSAGES (For Admin) ---
+app.get('/admin/messages', async (req, res) => {
+    try {
+        const db = client.db('SwiftLink');
+        const messages = await db.collection('messages').find().sort({ date: -1 }).toArray();
+        res.json({ success: true, messages: messages });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+});
+
+
 app.listen(PORT, () => {
     console.log(`✅ SwiftLink Server is running on http://localhost:${PORT}`);
 });

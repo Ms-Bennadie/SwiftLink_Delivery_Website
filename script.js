@@ -151,3 +151,36 @@ const trackBtn = document.querySelector('#track button');
 if (trackBtn) {
     trackBtn.addEventListener('click', trackParcel);
 }
+
+// --- CONTACT FORM SUBMISSION ---
+const contactForm = document.getElementById('contactForm');
+
+if (contactForm) {
+    contactForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const name = document.getElementById('contactName').value;
+        const email = document.getElementById('contactEmail').value;
+        const message = document.getElementById('contactMessage').value;
+
+        try {
+            const response = await fetch('http://localhost:3000/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, message })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert("Thank you! Your message has been sent to SwiftLink.");
+                this.reset(); // Clears the form
+            } else {
+                alert("Failed to send message. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Cannot connect to server.");
+        }
+    });
+}

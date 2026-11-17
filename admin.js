@@ -99,3 +99,24 @@ async function updateStatus(trackingNumber, newStatus) {
         console.error("Error updating status:", error);
     }
 }
+
+async function loadMessages() {
+    try {
+        const response = await fetch('http://localhost:3000/admin/messages');
+        const result = await response.json();
+
+        if (result.success && result.messages.length > 0) {
+            // For now, let's just show them in an alert or console
+            let msgText = "--- CUSTOMER MESSAGES ---\n\n";
+            result.messages.forEach(msg => {
+                msgText += `From: ${msg.name} (${msg.email})\nMessage: ${msg.message}\n\n`;
+            });
+            alert(msgText);
+        } else {
+            alert("No messages yet.");
+        }
+    } catch (error) {
+        console.error("Error loading messages:", error);
+        alert("Failed to load messages.");
+    }
+}
