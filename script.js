@@ -95,3 +95,59 @@ window.addEventListener('DOMContentLoaded', async () => {
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 });
+
+// --- REAL Tracking System ---
+async function trackParcel() {
+    const trackingNumber = document.getElementById('trackingNumber').value;
+    const resultDiv = document.getElementById('trackingResult');
+
+    if (trackingNumber.trim() === "") {
+        alert("Please enter a tracking number.");
+        return;
+    }
+
+    // Show loading state
+    resultDiv.classList.remove('hidden');
+    resultDiv.innerHTML = `<p><i class="fas fa-spinner fa-spin"></i> Searching for parcel...</p>`;
+
+    try {
+        const response = await fetch(`http://localhost:3000/track/${trackingNumber}`);
+        
+        if (!response.ok) {
+            throw new Error("Order not found");
+        }
+
+        const result = await response.json();
+
+        if (result.success) {
+            const order = result.order;
+            const destination = order.dropoff || "Unknown";
+
+            // Display the result
+            resultDiv.innerHTML = `
+                <h3>Status: <span style="color: var(--primary-color);">${order.status}</span></h3>
+                <p><strong>Tracking Number:</strong> ${order.trackingNumber}</p>
+                <p><strong>Current Location:</strong> ${order.location}</p>
+                <p><strong>Destination:</strong> ${destination}</p>
+            `;
+        } else {
+            resultDiv.innerHTML = `
+                <h3 style="color: red;">Not Found</h3>
+                <p>We could not find a parcel with the tracking number: <strong>${trackingNumber}</strong></p>
+            `;
+        }
+    } catch (error) {
+        console.error("Tracking Error:", error);
+        resultDiv.innerHTML = `
+            <h3 style="color: red;">Not Found</h3>
+            <p>We could not find a parcel with the tracking number: <strong>${trackingNumber}</strong>.</p>
+            <p><small>Please check the number and try again.</small></p>
+        `;
+    }
+}
+
+// Connect the Track button to the function
+const trackBtn = document.querySelector('#track button');
+if (trackBtn) {
+    trackBtn.addEventListener('click', trackParcel);
+}
