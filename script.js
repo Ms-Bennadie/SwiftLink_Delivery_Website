@@ -35,7 +35,10 @@ if (deliveryForm) {
             const result = await response.json();
 
             if (result.success) {
-                // Send user to Paystack checkout!
+                //Save the form data before leaving te page
+                localStorage.setItem('pendingOrder', JSON.stringify(formData));
+
+                // Redirect to Paystack
                 window.location.href = result.authorization_url;
             } else {
                 alert("Failed to start payment. Please try again.");
@@ -50,3 +53,45 @@ if (deliveryForm) {
         }
     });
 }
+
+// --- CHECK FOR PAYMENT SUCCESS ON PAGE LOAD ---
+window.addEventListener('DOMContentLoaded', async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const paymentStatus = urlParams.get('payment');
+    const trackingNum = urlParams.get('trxref'); // Paystack sends the reference here
+
+    if (paymentStatus === 'success' && trackingNum) {
+        // Show a loading message
+        alert("Payment successful! Finalizing your order...");
+
+        // Retrieve the saved form data from local storage
+        const savedFormData = JSON.parse(localStorage.getItem('pendingOrder'));
+
+        try {
+            // Tell the server to verify and save it
+            const response = await fetch('http://localhost:3000/verify-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    reference: trackingNum, 
+                    formData: savedFormData 
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                alert(`Order Confirmed!\n\nYour Tracking Number is: ${result.trackingNumber}\n\nPlease save this number to track your delivery.`);
+                localStorage.removeItem('pendingOrder'); // Clean up
+            } else {
+                alert("Payment was successful, but we couldn't save your order. Please contact support.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Cannot connect to server.");
+        }
+
+        // Clean the URL so the alert doesn't pop up again on refresh
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+});

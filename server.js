@@ -91,6 +91,43 @@ app.post('/admin/update-status', async (req, res) => {
     }
 });
 
+// --- VERIFY PAYMENT & SAVE TO DATABASE ---
+app.post('/verify-payment', async (req, res) => {
+    const { reference, formData } = req.body;
+
+    try {
+        // 1. Verify the payment with Paystack
+        const response = await paystack.transaction.verify({ reference: reference });
+
+        if (response.status && response.data.status === 'success') {
+            // 2. Payment is real! Save to MongoDB
+            const newOrder = {
+                trackingNumber: reference,
+                status: "Paid & Order Received", // Updated status
+                location: "Awaiting Rider Assignment",
+                pickup: formData.pickup,
+                dropoff: formData.dropoff,
+                phone: formData.phone,
+                parcel: formData.parcel,
+                type: formData.deliveryType,
+                amountPaid: response.data.amount / 100, // Convert back to GHS
+                createdAt: new Date()
+            };
+
+            await ordersCollection.insertOne(newOrder);
+            console.log(`💰 PAYMENT VERIFIED & SAVED: ${reference}`);
+
+            res.json({ success: true, trackingNumber: reference });
+        } else {
+            console.log(`❌ Payment failed or not found: ${reference}`);
+            res.json({ success: false, message: "Payment not successful" });
+        }
+    } catch (error) {
+        console.error("Verification Error:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`✅ SwiftLink Server is running on http://localhost:${PORT}`);
 });
