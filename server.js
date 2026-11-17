@@ -94,3 +94,39 @@ app.post('/admin/update-status', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`✅ SwiftLink Server is running on http://localhost:${PORT}`);
 });
+
+// --- PAYMENT ENDPOINT ---
+const paystack = require('paystack-api')(process.env.PAYSTACK_SECRET_KEY);
+
+app.post('/initialize-payment', async (req, res) => {
+    const { email, amount, formData } = req.body;
+    
+    // Paystack expects the amount in Pesewas (multiply GHS by 100)
+    const amountInPesewas = amount * 100; 
+    const trackingNumber = 'SW-' + Math.floor(1000 + Math.random() * 9000);
+
+    try {
+        const response = await paystack.transaction.initialize({
+            email: email,
+            amount: amountInPesewas,
+            reference: trackingNumber,
+            callback_url: 'http://127.0.0.1:5500/index.html?payment=success', // Redirects here after payment
+            metadata: {
+                pickup: formData.pickup,
+                dropoff: formData.dropoff,
+                phone: formData.phone,
+                parcel: formData.parcel,
+                deliveryType: formData.deliveryType
+            }
+        });
+
+        if (response.status) {
+            res.json({ success: true, authorization_url: response.data.authorization_url });
+        } else {
+            res.json({ success: false, message: "Payment initialization failed" });
+        }
+    } catch (error) {
+        console.error("Paystack Error:", error);
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+});
